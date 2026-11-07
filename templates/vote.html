@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Commission of India - EVM Voting</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='voter.css') }}">
+</head>
+
+<body>
+
+
+
+    <!-- HEADER (Navbar) -->
+    <header class="navbar">
+        <nav>
+            <a href="index.html"><img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb5lkdsdum9RQ6ONXiTmXdXmg2teM4agkdrQ&s"
+                    class="logo" alt="election-logo" /></a>
+        </nav>
+    </header>
+
+    <!-- MAIN -->
+    <div class="container">
+        <div class="evm">
+            <h2>Electronic Voting Machine</h2>
+
+            <!-- 15 PARTIES WITH EMOJI SYMBOLS -->
+            <div class="candidate">
+                <div class="symbol">
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Indian_election_symbol_two_leaves.svg/60px-Indian_election_symbol_two_leaves.svg.png" />
+                </div>
+                <div class="party-name">AIADMK</div><button class="btn-vote" onclick="castVote(this)">VOTE</button>
+                <div class="indicator"></div>
+            </div>
+            <div class="candidate">
+                <div class="symbol">
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Indian_election_symbol_rising_sun.svg/60px-Indian_election_symbol_rising_sun.svg.png" />
+                </div>
+                <div class="party-name">DMK</div><button class="btn-vote" onclick="castVote(this)">VOTE</button>
+                <div class="indicator"></div>
+            </div>
+            <div class="candidate">
+                <div class="symbol">
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Indian_Election_Symbol_Ears_of_Corn_and_Sickle.png/60px-Indian_Election_Symbol_Ears_of_Corn_and_Sickle.png" />
+                </div>
+                <div class="party-name">CPI</div><button class="btn-vote" onclick="castVote(this)">VOTE</button>
+                <div class="indicator"></div>
+            </div>
+            <div class="candidate">
+                <div class="symbol">
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Pot_Symbol.png/60px-Pot_Symbol.png" />
+                </div>
+                <div class="party-name">VCK</div><button class="btn-vote" onclick="castVote(this)">VOTE</button>
+                <div class="indicator"></div>
+            </div>
+            <div class="candidate">
+                <div class="symbol">
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Indian_Election_Symbol_Nagara.svg/60px-Indian_Election_Symbol_Nagara.svg.png" />
+                </div>
+                <div class="party-name">DMDK</div><button class="btn-vote" onclick="castVote(this)">VOTE</button>
+                <div class="indicator"></div>
+            </div>
+            <div class="candidate">
+                <div class="symbol">
+                    <img
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGhnpz6hYMqReCLQbs_1qKx90LaegCN8j0pg&s" />
+                </div>
+                <div class="party-name">TVK</div><button class="btn-vote" onclick="castVote(this)">VOTE</button>
+                <div class="indicator"></div>
+            </div>
+            <div class="candidate">
+                <div class="symbol">
+                    <img
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBnunqTkvXHLOI-Mt4wyOPZBjG-F2bzZfgZw&s" />
+                </div>
+                <div class="party-name">NTK</div><button class="btn-vote" onclick="castVote(this)">VOTE</button>
+                <div class="indicator"></div>
+            </div>
+
+            <div class="candidate">
+                <div class="symbol">
+                    <img
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtA_a40Exf_PPuFvfDr_L2dMu9Zyzxp7JE6g&s" />
+                </div>
+                <div class="party-name">PMK</div><button class="btn-vote" onclick="castVote(this)">VOTE</button>
+                <div class="indicator"></div>
+            </div>
+            <div class="candidate">
+                <div class="symbol">
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Hand_INC.svg/60px-Hand_INC.svg.png" />
+                </div>
+                <div class="party-name">INC</div><button class="btn-vote" onclick="castVote(this)">VOTE</button>
+                <div class="indicator"></div>
+            </div>
+            <div class="candidate">
+                <div class="symbol">
+                    <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Lotus_flower_symbol.svg/60px-Lotus_flower_symbol.svg.png" />
+                </div>
+                <div class="party-name">BJP</div><button class="btn-vote" onclick="castVote(this)">VOTE</button>
+                <div class="indicator"></div>
+            </div>
+
+            <div class="candidate">
+                <div class="symbol">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/NOTA_Option_Logo.png" />
+                </div>
+                <div class="party-name">NOTA</div><button class="btn-vote" onclick="castVote(this)">VOTE</button>
+                <div class="indicator"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup" id="popup">✅ Successfully Voted</div>
+
+    <div class="footer">
+        © Election Commission of India | Prototype for Hackathon Demonstration
+    </div>
+
+    <script>
+        let selectedParty = null;
+        let selectedSymbol = null;
+        let refCode = null;
+        let isLocked = false;
+        let currentSymbolHtml = "";
+
+        let lockTimer = null;
+        let lockCountdown = 20;
+
+        let clickCount = 0; // NEW: Track clicks
+
+        // GUARANTEED BEEP
+        function playBeep() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.type = "square";
+            osc.frequency.value = 800;
+            osc.connect(ctx.destination);
+            osc.start();
+            setTimeout(() => osc.stop(), 200);
+        }
+
+        function generateReferenceCode() {
+            return Math.random().toString(36).substring(2, 10).toUpperCase();
+        }
+
+        function castVote(btn) {
+            if (isLocked) return;
+
+            // Increment Click Count
+            clickCount++;
+
+            playBeep();
+
+            // 1. Get Data
+            selectedParty = btn.parentElement.querySelector('.party-name').innerText;
+            currentSymbolHtml = btn.parentElement.querySelector('.symbol').innerHTML;
+
+            if (!refCode) refCode = generateReferenceCode();
+
+            // 2. UI Updates
+            document.querySelectorAll(".indicator").forEach(ind => ind.classList.remove("active"));
+            btn.nextElementSibling.classList.add("active");
+
+            // 3. Start Auto-Lock Timer if not running
+            if (!lockTimer) {
+                startAutoLockTimer();
+            }
+
+            // 4. Update Popup
+            updatePopup();
+
+            // 5. IF CHANGE DETECTED (Click Count >= 2), LOCK IMMEDIATELY
+            if (clickCount >= 2) {
+                const popup = document.getElementById("popup");
+
+                // Visual Indicator
+                popup.innerHTML += `<div style="color: #ff4444; margin-top:15px; font-weight:bold; font-size:20px; text-transform:uppercase;">Final Choice Made. Locking...</div>`;
+
+                // Prevent further interaction immediately
+                isLocked = true;
+                document.querySelectorAll("button").forEach(b => b.disabled = true);
+
+                // Execute Lock Logic after short delay
+                setTimeout(() => {
+                    lockVote();
+                }, 1500);
+            }
+        }
+
+        function startAutoLockTimer() {
+            const popup = document.getElementById("popup");
+            popup.style.display = "block";
+
+            lockTimer = setInterval(() => {
+                lockCountdown--;
+                updatePopup();
+
+                if (lockCountdown <= 0) {
+                    clearInterval(lockTimer);
+                    lockVote();
+                }
+            }, 1000);
+        }
+
+        function updatePopup() {
+            const popup = document.getElementById("popup");
+            if (isLocked) return; // Handled by submitVote
+
+            popup.style.display = "block";
+
+            // Helpful text based on clicks
+            let statusText = "You can change your vote ONCE.";
+            if (clickCount >= 1) statusText = "Clicking another candidate will LOCK your vote instantly.";
+
+            popup.innerHTML = `
+                <h2>✅ Selected: ${selectedParty}</h2>
+                <div style="font-size: 50px; margin: 5px 0;">${currentSymbolHtml}</div>
+                
+                <p style="margin: 10px 0; font-size: 14px; color: #ddd;">
+                    ${statusText}
+                </p>
+                
+                <div class="auto-lock-timer" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>Auto-Locking in:</strong>
+                    <div style="font-size: 36px; font-weight: bold; color: #ffeb3b;">
+                        ${lockCountdown}s
+                    </div>
+                </div>
+            `;
+        }
+
+        function lockVote() {
+            isLocked = true;
+            document.querySelectorAll("button").forEach(b => b.disabled = true); // Lock all buttons
+
+            if (lockTimer) clearInterval(lockTimer); // Ensure timer stops
+
+            const popup = document.getElementById("popup");
+            popup.innerHTML = `<h3>⌛ Time's Up! Locking Vote...</h3>`;
+
+            // Submit
+            submitVote();
+        }
+
+        function submitVote() {
+            const popup = document.getElementById("popup");
+
+            fetch("/vote", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    candidate: selectedParty,
+                    ref_code: refCode
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log("Vote Stored:", data);
+
+                    let redirectCountdown = 10;
+
+                    popup.innerHTML = `
+                    <h1>🎉 Vote Locked Successfully</h1>
+                    <div style="font-size: 60px; margin: 10px 0;">${currentSymbolHtml}</div>
+                    
+                    <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                        <span style="font-size: 14px; color: #ccc;">Reference Code:</span><br>
+                        <strong style="font-size: 24px; color: #fff; letter-spacing: 2px;">${refCode}</strong>
+                    </div>
+
+                    <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <span style="font-size: 11px; opacity: 0.8;">Blockchain Transaction Hash:</span><br>
+                        <small style="font-family: monospace; word-break: break-all;">${data.hash}</small>
+                    </div>
+
+                    <p style="margin-top: 20px; font-weight:bold; color:#ffdd57;">
+                        Redirecting to Verification in <span id="redir-timer">${redirectCountdown}</span>s...
+                    </p>
+                `;
+
+                    const interval = setInterval(() => {
+                        redirectCountdown--;
+                        const timerSpan = document.getElementById("redir-timer");
+                        if (timerSpan) timerSpan.innerText = redirectCountdown;
+
+                        if (redirectCountdown <= 0) {
+                            clearInterval(interval);
+                            // Redirect to Verification Page (Index)
+                            window.location.href = "{{ url_for('verification') }}";
+                        }
+                    }, 1000);
+                })
+                .catch(err => {
+                    console.error("Error:", err);
+                    popup.innerHTML = `<h3>Error Submitting Vote</h3><button onclick="window.location.reload()">Try Again</button>`;
+                });
+        }
+    </script>
+
+</body>
+
+</html>

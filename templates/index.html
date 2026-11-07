@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Verification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='user.css') }}">
+    <script src="https://kit.fontawesome.com/0b0f087772.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <header class="navbar">
+        <nav>
+            <a href="{{ url_for('home') }}"><img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb5lkdsdum9RQ6ONXiTmXdXmg2teM4agkdrQ&s"
+                    class="logo" alt="election-logo" /></a>
+        </nav>
+    </header>
+
+    <div class="verification-container">
+        <h1>User Verification</h1>
+
+        <div class="cards-wrapper">
+            <!-- Biometric Verification Section (First) -->
+            <div class="verification-card bio-card" id="bio-card">
+                <div class="icon-header">
+                    <i class="fa-solid fa-fingerprint"></i>
+                    <h2>Biometric Verification</h2>
+                </div>
+                <div class="fingerprint-container">
+                    <i class="fa-solid fa-fingerprint huge-icon"></i>
+                    <div class="scan-line"></div>
+                </div>
+                <!-- Step 1 Indicator -->
+                <p class="step-label">Step 1</p>
+                <button id="bio-verify-btn" class="btn-primary">Scan Fingerprint</button>
+            </div>
+
+            <!-- Face Verification Section (Second - Locked Initially) -->
+            <div class="verification-card face-card locked" id="face-card">
+                <div class="icon-header">
+                    <i class="fa-solid fa-face-viewfinder"></i>
+                    <h2>Face Verification</h2>
+                </div>
+                <div class="video-container">
+                    <video id="video" autoplay muted></video>
+                    <div class="scan-overlay"></div>
+                </div>
+                <!-- Step 2 Indicator -->
+                <p class="step-label">Step 2</p>
+                <button id="start-camera" class="btn-primary">Start Camera</button>
+                <button id="capture-face" class="btn-secondary" style="display:none;">Verify Face</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <div class="success-icon">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h2>Verification Completed</h2>
+        </div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const startBtn = document.getElementById('start-camera');
+        const captureBtn = document.getElementById('capture-face');
+        const bioBtn = document.getElementById('bio-verify-btn');
+        const faceCard = document.getElementById('face-card');
+        const modal = document.getElementById('success-modal');
+
+        // Hidden canvas for capture
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+
+        let isBioVerified = false;
+        let isFaceVerified = false;
+
+        function checkCompletion(redirectUrl) {
+            if (isBioVerified && isFaceVerified) {
+                setTimeout(() => {
+                    modal.style.display = 'flex';
+                    // Auto-redirect
+                    setTimeout(() => {
+                        window.location.href = redirectUrl || '/details';
+                    }, 2000);
+                }, 500);
+            }
+        }
+
+        // Function to start camera
+        async function startCamera() {
+            try {
+                // Update UI to show we are trying
+                startBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Starting Camera...';
+
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+
+                startBtn.style.display = 'none';
+                captureBtn.style.display = 'inline-block';
+
+                // Auto-trigger verification after camera starts (give it a moment to initialize)
+                setTimeout(() => {
+                    verifyFace();
+                }, 1000);
+
+            } catch (err) {
+                console.error("Error accessing camera: ", err);
+                alert("Could not access camera. Please allow permissions. You may need to click 'Start Camera' manually.");
+                // Reset button if auto-start fails
+                startBtn.innerHTML = 'Start Camera';
+            }
+        }
+
+        // Function to verify face
+        function verifyFace() {
+            captureBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
+
+            // Capture
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/jpeg');
+
+            fetch("/verify_face", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageData })
+            })
+                .then(response => {
+                    if (response.redirected) {
+                        // Success
+                        captureBtn.innerHTML = '<i class="fa-solid fa-check"></i> Verified';
+                        captureBtn.classList.add('verified');
+                        captureBtn.disabled = true;
+                        isFaceVerified = true;
+
+                        // Stop camera stream
+                        if (video.srcObject) {
+                            const stream = video.srcObject;
+                            const tracks = stream.getTracks();
+                            tracks.forEach(track => track.stop());
+                        }
+
+                        checkCompletion(response.url);
+
+                    } else {
+                        return response.text().then(data => {
+                            if (data === "duplicate") {
+                                alert("You have already voted!");
+                                window.location.reload();
+                            } else {
+                                alert("you have already voted ");
+                                captureBtn.innerHTML = 'Verify Face';
+                            }
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Server Error");
+                    captureBtn.innerHTML = 'Verify Face';
+                });
+        }
+
+        // 1. Biometric Verification Logic
+        bioBtn.addEventListener('click', () => {
+            bioBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Scanning...';
+            bioBtn.classList.add('scanning');
+
+            const bioIcon = document.querySelector('.huge-icon');
+            if (bioIcon) bioIcon.style.color = '#2E8B57'; // Green
+
+            // Generate Random ID to support multiple voters
+            const randomFpId = "fp_" + Date.now() + Math.random().toString(36).substr(2, 5);
+
+            fetch('/mobile_fp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fp_id: randomFpId })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.msg === "success") {
+                        setTimeout(() => {
+                            bioBtn.innerHTML = '<i class="fa-solid fa-check"></i> Verified';
+                            bioBtn.classList.remove('scanning');
+                            bioBtn.classList.add('verified');
+                            bioBtn.disabled = true;
+                            isBioVerified = true;
+
+                            // UNLOCK Face Card
+                            faceCard.classList.remove('locked');
+
+                            // AUTO-START CAMERA
+                            startCamera();
+
+                        }, 1000);
+                    } else {
+                        alert("Fingerprint Error: " + data.msg);
+                        bioBtn.innerHTML = 'Scan Fingerprint';
+                        bioBtn.classList.remove('scanning');
+                        if (bioIcon) bioIcon.style.color = '';
+                    }
+                })
+                .catch(err => {
+                    console.error("FP Error:", err);
+                    alert("Server Connection Failed");
+                    bioBtn.innerHTML = 'Scan Fingerprint';
+                    bioBtn.classList.remove('scanning');
+                });
+        });
+
+        // Manual triggers (just in case)
+        startBtn.addEventListener('click', () => {
+            startCamera();
+        });
+
+        captureBtn.addEventListener('click', () => {
+            verifyFace();
+        });
+    </script>
+</body>
+
+</html>

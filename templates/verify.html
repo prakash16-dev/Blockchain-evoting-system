@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote Verification - ECI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='verify.css', v=3) }}">
+</head>
+
+<body>
+
+    <div class="verification-card">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb5lkdsdum9RQ6ONXiTmXdXmg2teM4agkdrQ&s"
+            alt="ECI Logo" style="height: 60px; margin-bottom: 20px;">
+        <h2>Vote Verification</h2>
+
+        <form id="verifyForm" onsubmit="handleVerification(event)">
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" placeholder="Enter your registered phone number" required
+                    pattern="[0-9]{10}">
+            </div>
+
+            <div class="form-group">
+                <label for="refId">Reference ID</label>
+                <input type="text" id="refId" placeholder="Enter 8-digit Reference Code" required minlength="8"
+                    maxlength="8">
+            </div>
+
+            <button type="submit" class="btn-verify">Verify Vote Status</button>
+        </form>
+
+        <p style="margin-top: 20px; font-size: 14px;">
+            <a href="{{ url_for('result') }}" style="color: #007bff; text-decoration: none;">&larr; Back to Results</a>
+        </p>
+    </div>
+
+    <!-- SUCCESS MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div style="font-size: 50px; margin-bottom: 10px;">✅</div>
+            <h3>Verification Successful</h3>
+            <p>Your vote has been securely counted and recorded.</p>
+            <p style="font-size: 14px; color: #666;" id="refDisplay"></p>
+            <button class="modal-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function handleVerification(e) {
+            e.preventDefault();
+
+            const phone = document.getElementById('phone').value;
+            const refId = document.getElementById('refId').value;
+
+            // Simple validation simulation
+            if (phone && refId) {
+                const overlay = document.getElementById('modalOverlay');
+                const refDisplay = document.getElementById('refDisplay');
+
+                refDisplay.innerText = `Ref ID: ${refId}`;
+
+                overlay.style.display = 'flex';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+            document.getElementById('verifyForm').reset();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('modalOverlay').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+
+</html>

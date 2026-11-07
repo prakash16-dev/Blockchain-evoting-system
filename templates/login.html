@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter Registration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css', v=3) }}">
+    <script src="https://kit.fontawesome.com/0b0f087772.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <header class="navbar">
+        <nav>
+            <a href="{{ url_for('home') }}"><img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb5lkdsdum9RQ6ONXiTmXdXmg2teM4agkdrQ&s"
+                    class="logo" alt="election-logo" /></a>
+
+        </nav>
+    </header>
+    <div class="login">
+        <h1>Login</h1>
+        <a href="{{ url_for('admin_login') }}" class="btn admin-btn">Admin</a>
+        <a href="{{ url_for('verification') }}"><i class="fa-solid fa-users"></i> User</a>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Results - ECI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='result.css', v=3) }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <a href="index.html">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb5lkdsdum9RQ6ONXiTmXdXmg2teM4agkdrQ&s"
+                class="logo" alt="ECI Logo">
+        </a>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="resetElection()"
+                style="padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 5px; font-weight: 600; cursor: pointer;">Reset
+                Election</button>
+            <a href="{{ url_for('verify') }}" class="verification-btn">Verification</a>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        <h2>Live Election Results</h2>
+        <div class="chart-container">
+            <canvas id="voteChart"></canvas>
+        </div>
+    </div>
+
+    <div class="footer">
+        © Election Commission of India | Prototype for Hackathon Demonstration
+    </div>
+
+    <script>
+        const ctx = document.getElementById('voteChart').getContext('2d');
+
+        // Parties List
+        const parties = ['AIADMK', 'DMK', 'CPI', 'VCK', 'DMDK', 'TVK', 'NTK', 'PMK', 'INC', 'BJP', 'NOTA'];
+
+        // Specific colors for parties
+        const partyColors = [
+            '#0f8a00', // AIADMK
+            '#dd1100', // DMK
+            '#d60000', // CPI
+            '#0033cc', // VCK
+            '#ffcc00', // DMDK
+            '#ff9900', // TVK
+            '#009933', // NTK
+            '#ffcc00', // PMK
+            '#00bfff', // INC
+            '#ff9933', // BJP
+            '#888888'  // NOTA
+        ];
+
+        // Initialize Chart with 0 data
+        const voteChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: parties,
+                datasets: [{
+                    label: 'Votes Polled',
+                    data: new Array(parties.length).fill(0),
+                    backgroundColor: partyColors,
+                    borderColor: '#333',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        title: {
+                            display: true,
+                            text: 'Number of Votes'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Political Parties'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                }
+            }
+        });
+
+        // FETCH REAL-TIME DATA FROM BLOCKCHAIN
+        async function fetchResults() {
+            try {
+                const response = await fetch('/chain');
+                const chain = await response.json();
+
+                // Tally Votes
+                const voteCounts = {};
+                parties.forEach(p => voteCounts[p] = 0);
+
+                chain.forEach(block => {
+                    // Check if block has candidate data (skip genesis or malformed)
+                    // blockchain.py uses 'vote' key, not 'candidate'
+                    if (block.vote && parties.includes(block.vote)) {
+                        voteCounts[block.vote]++;
+                    }
+                });
+
+                // Update Chart
+                const newData = parties.map(p => voteCounts[p]);
+
+                // Only update if data changed to save resources/animation
+                if (JSON.stringify(voteChart.data.datasets[0].data) !== JSON.stringify(newData)) {
+                    voteChart.data.datasets[0].data = newData;
+                    voteChart.update();
+                }
+
+            } catch (error) {
+                console.error("Error fetching results:", error);
+            }
+        }
+
+        // Poll every 2 seconds
+        setInterval(fetchResults, 2000);
+        fetchResults(); // Initial call
+
+        function resetElection() {
+            const password = prompt("Enter Admin Password to Reset Election:");
+
+            if (password === "admin123") {
+                if (confirm("Are you sure you want to reset all election data? This cannot be undone.")) {
+                    // Since backend resets on '/', we can just navigate there or call a reset endpoint if one existed.
+                    // Current app.py resets on HOME route.
+                    // Call the new dedicated reset endpoint
+                    window.location.href = "/reset_election";
+                }
+            } else if (password !== null) {
+                alert("Incorrect Password! Access Denied.");
+            }
+        }
+
+    </script>
+</body>
+
+</html>

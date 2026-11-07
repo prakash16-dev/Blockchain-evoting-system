@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='user.css') }}">
+    <script src="https://kit.fontawesome.com/0b0f087772.js" crossorigin="anonymous"></script>
+    <style>
+        .profile-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 600px;
+            margin: 50px auto;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .profile-header {
+            background: #2E8B57;
+            padding: 30px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .profile-img-container {
+            width: 120px;
+            height: 120px;
+            background: #fff;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .profile-img-container i {
+            font-size: 60px;
+            color: #2E8B57;
+        }
+
+        .profile-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .profile-body {
+            padding: 30px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            background: #ecf7f1;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #2E8B57;
+            margin-right: 20px;
+            font-size: 18px;
+        }
+
+        .info-data label {
+            display: block;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 3px;
+        }
+
+        .info-data span {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .redirect-msg {
+            text-align: center;
+            background: #f9f9f9;
+            padding: 15px;
+            font-size: 14px;
+            color: #666;
+            margin-top: auto;
+        }
+
+        .redirect-msg span {
+            color: #2E8B57;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Reuse Navbar -->
+    <header class="navbar">
+        <nav>
+            <a href="{{ url_for('home') }}"><img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb5lkdsdum9RQ6ONXiTmXdXmg2teM4agkdrQ&s"
+                    class="logo" alt="election-logo" /></a>
+        </nav>
+    </header>
+
+    <div class="verification-container">
+        <h1>Voter Profile</h1>
+
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-img-container">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <h2>{{ person["name"] }}</h2>
+            </div>
+
+            <div class="profile-body">
+                <div class="info-row">
+                    <div class="info-icon"><i class="fa-solid fa-venus-mars"></i></div>
+                    <div class="info-data">
+                        <label>Gender</label>
+                        <span>{{ person["gender"] }}</span>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-icon"><i class="fa-solid fa-id-card"></i></div>
+                    <div class="info-data">
+                        <label>Aadhaar Number</label>
+                        <span>{{ person["aadhaar_number"] }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="redirect-msg">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+                Proceeding to Voting Screen in <span id="timer">5</span>s...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let countdown = 10;
+        const timerSpan = document.getElementById('timer');
+
+        const interval = setInterval(() => {
+            countdown--;
+            timerSpan.innerText = countdown;
+
+            if (countdown <= 0) {
+                clearInterval(interval);
+                window.location.href = "/vote";
+            }
+        }, 1000);
+    </script>
+</body>
+
+</html>

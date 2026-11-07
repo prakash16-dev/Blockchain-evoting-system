@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <script src="https://kit.fontawesome.com/0b0f087772.js" crossorigin="anonymous"></script>
+    <style>
+        /* Extra styles for form inputs to match the green theme */
+        .login input {
+            padding: 10px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .login input:focus {
+            border-color: green;
+            box-shadow: 0 0 5px rgba(0, 128, 0, 0.2);
+        }
+
+        .login button {
+            background-color: green;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .login button:hover {
+            background-color: #006400;
+            /* Darker green */
+            transform: translateY(-2px);
+        }
+
+        .error-msg {
+            color: red;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="navbar">
+        <nav>
+            <a href="{{ url_for('home') }}"><img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb5lkdsdum9RQ6ONXiTmXdXmg2teM4agkdrQ&s"
+                    class="logo" alt="election-logo" /></a>
+        </nav>
+    </header>
+
+    <div class="login">
+        <h1>Admin Access</h1>
+
+        <form method="POST" style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        {% if error %}
+        <p class="error-msg">{{ error }}</p>
+        {% endif %}
+
+        <a href="{{ url_for('home') }}" style="background:gray; font-size:14px; padding:8px; width:100px;">Back</a>
+    </div>
+</body>
+
+</html>

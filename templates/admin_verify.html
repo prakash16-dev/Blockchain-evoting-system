@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Verification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <script src="https://kit.fontawesome.com/0b0f087772.js" crossorigin="anonymous"></script>
+    <style>
+        /* Consistent Form Styles matching login.css/admin_login.html */
+        .login input {
+            padding: 10px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .login input:focus {
+            border-color: green;
+            box-shadow: 0 0 5px rgba(0, 128, 0, 0.2);
+        }
+
+        .login button {
+            background-color: green;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 220px;
+            transition: all 0.3s ease;
+        }
+
+        .login button:hover {
+            background-color: #006400;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="navbar">
+        <nav>
+            <a href="{{ url_for('home') }}"><img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSb5lkdsdum9RQ6ONXiTmXdXmg2teM4agkdrQ&s"
+                    class="logo" alt="election-logo" /></a>
+        </nav>
+    </header>
+
+    <div class="login">
+        <h1>Manual Verification</h1>
+
+        <form method="POST" style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
+            <input type="text" name="aadhaar" placeholder="Enter Voter Aadhaar No" required>
+            <input type="text" name="epic" placeholder="Enter Epic Number" required>
+            <button type="submit">Verify & Proceed</button>
+        </form>
+
+        <a href="{{ url_for('admin_login') }}"
+            style="background:gray; color:white; font-size:14px; padding:8px; width:100px; text-align:center; text-decoration:none; border-radius:5px; margin-top:20px;">Back</a>
+    </div>
+</body>
+
+</html>
